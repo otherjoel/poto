@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.xcresult
+*.dSYM
+*.dSYM.zip
+*.ipa
+*.app
+*.hmap
+*.moved-aside
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# Agent tooling
+.claude/
+.agents/
+skills-lock.json
