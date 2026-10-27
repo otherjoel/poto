@@ -27,6 +27,7 @@ final class AppModel {
 
     // Presentation
     var isOpenPanelPresented = false
+    var isPhotosPickerPresented = false
     var isAddFolderPanelPresented = false
     var editingFolder: OutputFolder?
     var alert: AlertInfo? {

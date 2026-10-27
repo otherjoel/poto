@@ -7,6 +7,8 @@ struct AppCommands: Commands {
         CommandGroup(replacing: .newItem) {
             Button("Open…", action: showOpenPanel)
                 .keyboardShortcut("o")
+            Button("Add from Photos…", action: showPhotosPicker)
+                .keyboardShortcut("o", modifiers: [.command, .shift])
             Button("Add Output Folder…", action: showAddFolderPanel)
                 .keyboardShortcut("n", modifiers: [.command, .shift])
         }
@@ -43,6 +45,11 @@ struct AppCommands: Commands {
     private func showOpenPanel() {
         model.selection = .queue
         model.isOpenPanelPresented = true
+    }
+
+    private func showPhotosPicker() {
+        model.selection = .queue
+        model.isPhotosPickerPresented = true
     }
 
     private func showAddFolderPanel() {

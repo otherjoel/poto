@@ -121,4 +121,19 @@ struct OriginalsAndDropTests {
         #expect(DropImporter.preferredImageType(among: ["com.apple.photos.thing", "public.jpeg", "public.png"]) == .jpeg)
         #expect(DropImporter.preferredImageType(among: ["public.file-url", "public.utf8-plain-text"]) == nil)
     }
+
+    @Test func dropSkipsTypesPotoCannotOpen() {
+        #expect(DropImporter.preferredImageType(among: ["com.adobe.raw-image", "public.jpeg"]) == .jpeg)
+        #expect(DropImporter.preferredImageType(among: ["public.svg-image"]) == nil)
+    }
+
+    @Test func inboxNamesAFileAfterItsSuggestedName() {
+        let file = URL(filePath: "/tmp/3F2A9C.heic")
+        #expect(Inbox.fileName(for: file, suggestedName: "IMG_1234") == "IMG_1234.heic")
+        #expect(Inbox.fileName(for: file, suggestedName: "IMG_1234.HEIC") == "IMG_1234.heic")
+        #expect(Inbox.fileName(for: file, suggestedName: "Trip v1.2") == "Trip v1.2.heic")
+        #expect(Inbox.fileName(for: file, suggestedName: "a/b") == "a-b.heic")
+        #expect(Inbox.fileName(for: file, suggestedName: nil) == "3F2A9C.heic")
+        #expect(Inbox.fileName(for: file, suggestedName: " ") == "3F2A9C.heic")
+    }
 }

@@ -24,9 +24,10 @@ struct QueueListView: View {
                 ContentUnavailableView {
                     Label("No Photos", systemImage: "photo.badge.plus")
                 } description: {
-                    Text("Drop photos or a folder on the window, or choose Open.")
+                    Text("Drop photos or a folder on the window, choose Open, or add photos from your Photos library.")
                 } actions: {
                     Button("Open…", action: showOpenPanel)
+                    Button("Add from Photos…", action: showPhotosPicker)
                 }
             }
         }
@@ -44,6 +45,10 @@ struct QueueListView: View {
                     .help("Open photos or a folder of photos (⌘O)")
             }
             ToolbarItem {
+                Button("Add from Photos…", systemImage: "photo.on.rectangle.angled", action: showPhotosPicker)
+                    .help("Add photos from your Photos library, iCloud photos included (⇧⌘O)")
+            }
+            ToolbarItem {
                 Menu("More", systemImage: "ellipsis.circle") {
                     Button("Remove Finished Photos", action: queue.removeFinished)
                         .disabled(!queue.hasFinishedPhotos)
@@ -54,6 +59,10 @@ struct QueueListView: View {
 
     private func showOpenPanel() {
         model.isOpenPanelPresented = true
+    }
+
+    private func showPhotosPicker() {
+        model.isPhotosPickerPresented = true
     }
 
     private func removeSelected() {

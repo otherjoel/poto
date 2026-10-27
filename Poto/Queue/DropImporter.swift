@@ -29,11 +29,12 @@ nonisolated enum DropImporter {
     }
 
     /// HEIC first: only the HEIC of an iPhone HDR photo has the gain map. After that,
-    /// the order of the source, which lists its best representation first.
+    /// the order of the source, which lists its best representation first. Types that
+    /// Poto cannot open, such as the DNG of a ProRAW photo, are skipped.
     static func preferredImageType(among identifiers: [String]) -> UTType? {
         let types = identifiers
             .compactMap { UTType($0) }
-            .filter { $0.conforms(to: .image) }
+            .filter(SourceScanner.isSource)
         return types.first { $0.conforms(to: .heic) || $0.conforms(to: .heif) } ?? types.first
     }
 
@@ -51,7 +52,8 @@ nonisolated enum DropImporter {
     /// An image file on disk comes back in place, as itself. A promised file comes back
     /// as a temporary file, or "in place" in a SwiftUI promise folder. Both go into the inbox.
     private static func receivedFile(from provider: NSItemProvider, type: UTType) async -> URL? {
-        await withCheckedContinuation { continuation in
+        let suggestedName = provider.suggestedName
+        return await withCheckedContinuation { continuation in
             _ = provider.loadFileRepresentation(for: type, openInPlace: true) { url, isInPlace, _ in
                 guard let url else {
                     continuation.resume(returning: nil)
@@ -59,7 +61,7 @@ nonisolated enum DropImporter {
                 }
                 if !isInPlace {
                     // The file is deleted when this handler returns, so copy it now.
-                    continuation.resume(returning: try? Inbox.adopt(url))
+                    continuation.resume(returning: try? Inbox.adopt(url, suggestedName: suggestedName))
                 } else if Inbox.isInPromiseFolder(url) {
                     continuation.resume(returning: try? Inbox.adoptPromisedFile(url))
                 } else {

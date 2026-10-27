@@ -1,4 +1,5 @@
 import Foundation
+import UniformTypeIdentifiers
 
 /// Holds photos that arrive as promised files, for example from the Photos app.
 /// Such a file is temporary at its source, so Poto keeps its own copy until the
@@ -9,14 +10,30 @@ nonisolated enum Inbox {
         return URL.cachesDirectory.appending(path: "\(bundleID)/Inbox")
     }
 
-    /// Copies `file` into the inbox under its own name. Each file gets its own
-    /// subfolder, so two photos with the same name do not collide.
-    static func adopt(_ file: URL) throws -> URL {
+    /// Copies `file` into the inbox, under `suggestedName` if there is one, else under
+    /// its own name. Each file gets its own subfolder, so two photos with the same name
+    /// do not collide.
+    static func adopt(_ file: URL, suggestedName: String? = nil) throws -> URL {
         let folder = directory.appending(path: UUID().uuidString)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let target = folder.appending(path: file.lastPathComponent)
+        let target = folder.appending(path: fileName(for: file, suggestedName: suggestedName))
         try FileManager.default.copyItem(at: file, to: target)
         return target
+    }
+
+    /// The suggested name with the extension of `file`. The temporary file of an item
+    /// provider can have a random name, and the suggested name, for example "IMG_1234"
+    /// from the Photos picker, often has no extension.
+    static func fileName(for file: URL, suggestedName: String?) -> String {
+        var base = suggestedName?
+            .replacingOccurrences(of: "/", with: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let suggestedExtension = (base as NSString).pathExtension
+        if let type = UTType(filenameExtension: suggestedExtension), type.conforms(to: .image) {
+            base = (base as NSString).deletingPathExtension
+        }
+        guard !base.isEmpty, !base.hasPrefix(".") else { return file.lastPathComponent }
+        return file.pathExtension.isEmpty ? base : "\(base).\(file.pathExtension)"
     }
 
     /// SwiftUI receives promised files into a folder of this name in the caches, says

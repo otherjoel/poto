@@ -44,6 +44,10 @@ struct ContentView: View {
             onCompletion: open
         )
         .fileDialogMessage("Choose photos, or a folder of photos.")
+        .sheet(isPresented: $model.isPhotosPickerPresented) {
+            PhotosPickerSheet(onCompletion: openPicked)
+                .frame(minWidth: 720, idealWidth: 960, minHeight: 520, idealHeight: 680)
+        }
         .sheet(item: $model.editingFolder, content: FolderSettingsView.init)
         .quickLookPreview($model.quickLookURL)
         .alert(
@@ -66,6 +70,13 @@ struct ContentView: View {
             model.open(receivers)
         }
         return true
+    }
+
+    private func openPicked(_ providers: [NSItemProvider]) {
+        model.isPhotosPickerPresented = false
+        if !providers.isEmpty {
+            model.open(providers)
+        }
     }
 
     private func open(_ result: Result<[URL], any Error>) {

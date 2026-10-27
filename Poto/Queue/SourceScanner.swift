@@ -9,7 +9,11 @@ nonisolated enum SourceScanner {
     /// needs more delegates for them than a usual install has.
     static func isSource(_ url: URL) -> Bool {
         guard let type = UTType(filenameExtension: url.pathExtension) else { return false }
-        return type.conforms(to: .image) && !type.conforms(to: .rawImage) && !type.conforms(to: .svg)
+        return isSource(type)
+    }
+
+    static func isSource(_ type: UTType) -> Bool {
+        type.conforms(to: .image) && !type.conforms(to: .rawImage) && !type.conforms(to: .svg)
     }
 
     static func isHEIF(_ url: URL) -> Bool {
